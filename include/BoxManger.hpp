@@ -86,12 +86,11 @@ public:
         bool to_is_ref=ref_object_pool_.count(to)!=0;
         bool from_is_ref=ref_object_pool_.count(from)!=0;
         if((!to_is_ref)&&(!from_is_ref)){
-            if(!to){//has bug
-                to=from;
-                from=nullptr;
-                return;
+            if(!to){//fix
+                to=new_ref_object();
             }
             *to=::std::move(*from);
+            from=nullptr;
             return;
         }
         if((!to_is_ref)&&from_is_ref){//has case:to==nullptr
