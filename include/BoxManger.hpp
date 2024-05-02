@@ -86,7 +86,7 @@ public:
         bool to_is_ref=ref_object_pool_.count(to)!=0;
         bool from_is_ref=ref_object_pool_.count(from)!=0;
         if((!to_is_ref)&&(!from_is_ref)){
-            if(!to){
+            if(!to){//has bug
                 to=from;
                 from=nullptr;
                 return;
@@ -95,7 +95,7 @@ public:
             return;
         }
         if((!to_is_ref)&&from_is_ref){//has case:to==nullptr
-            to=from;
+            to=from;//not release to ptr
             from=nullptr;
             return;
         }
