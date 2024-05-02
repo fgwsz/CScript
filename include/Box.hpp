@@ -82,7 +82,7 @@ public:
     }
     constexpr void set(value_type&& value){
         if constexpr(is_big_size_v){
-            *this->data_=::std::move(value);
+            *(this->data_)=::std::move(value);
         }else{
             if(&value==this->byte_array()){
                 return;
