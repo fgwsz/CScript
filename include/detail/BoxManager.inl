@@ -2,7 +2,7 @@
 #include"../BoxManager.hpp"
 #include<new>//::operator new,::operator delete
 #include<stack>//std::stack
-#include<map>//std::map
+#include<unordered_map>//std::unordered_map
 #include<iostream>//std:cout
 namespace detail{
 template<typename Type>
@@ -20,7 +20,7 @@ struct BoxManagerClear{
 template<typename Type>
 static BoxManagerClear<Type> box_manger_clear={};
 template<typename Type>
-static ::std::map<Type*,unsigned> object_pool={};
+static ::std::unordered_map<Type*,unsigned> object_pool={};
 template<typename Type>
 static ::std::stack<Type*> memory_pool={};
 }//namespace detail
