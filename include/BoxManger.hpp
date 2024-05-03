@@ -18,10 +18,12 @@ public:
         value_type* ret=nullptr; 
         if(!null_object_pool_.empty()){
             ret=null_object_pool_.top();
+            new(ret)value_type{};
             ref_object_pool_[ret]=1;
             null_object_pool_.pop();
         }else{
-            ret=new value_type{};
+            ret=static_cast<value_type*>(::operator new(sizeof(value_type)));
+new(ret)value_type{};
             ref_object_pool_[ret]=1;
         }
         return ret;
@@ -36,6 +38,7 @@ public:
         if(ref_object_pool_[object]>1){
             --(ref_object_pool_[object]);
         }else{
+object->~value_type();
             null_object_pool_.push(object);
             ref_object_pool_.erase(object);
         }
@@ -130,6 +133,7 @@ public:
     }
     static void clear_ref_object(){
         for(auto& pair:ref_object_pool_){
+(pair.first)->~value_type();
            null_object_pool_.push(pair.first); 
         }
         ref_object_pool_.clear();
@@ -138,7 +142,7 @@ public:
         value_type* object=nullptr;
         while(!null_object_pool_.empty()){
             object=null_object_pool_.top();
-            delete object;
+            ::operator delete(object);
             null_object_pool_.pop();
         }
     }
