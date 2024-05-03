@@ -1,4 +1,5 @@
 #pragma once
+#include<new>
 #include<stack>
 #include<map>
 #include<iostream>
