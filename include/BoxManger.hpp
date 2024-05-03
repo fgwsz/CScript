@@ -57,9 +57,13 @@ public:
             *to=*from;
             return;
         }
-        if((!to_is_ref)&&from_is_ref){//has case:to==nullptr
-            to=const_cast<value_type*>(from);
-            ++(ref_object_pool_[const_cast<value_type*>(from)]);
+        if((!to_is_ref)&&from_is_ref){
+            if(!to){
+    to=const_cast<value_type*>(from);
+                ++(ref_object_pool_[const_cast<value_type*>(from)]);
+                return;
+            }
+            *to=*from;
             return;
         }
         if(to_is_ref&&(!from_is_ref)){
