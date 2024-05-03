@@ -73,17 +73,17 @@ constexpr void BoxManager<Type>::copy_object(Type*& to,Type const* from){
     if(to==from){
         return;
     }
-    bool to_is_ref=detail::object_pool<Type>.count(to)!=0;
-    bool from_is_ref=
+    bool to_in_pool=detail::object_pool<Type>.count(to)!=0;
+    bool from_in_pool=
         detail::object_pool<Type>.count(const_cast<Type*>(from))!=0;
-    if((!to_is_ref)&&(!from_is_ref)){
+    if((!to_in_pool)&&(!from_in_pool)){
         if(!to){
             to=new_object();
         }
         *to=*from;
         return;
     }
-    if((!to_is_ref)&&from_is_ref){
+    if((!to_in_pool)&&from_in_pool){
         if(!to){
             to=const_cast<Type*>(from);
             ++(detail::object_pool<Type>[const_cast<Type*>(from)]);
@@ -92,7 +92,7 @@ constexpr void BoxManager<Type>::copy_object(Type*& to,Type const* from){
         }
         return;
     }
-    if(to_is_ref&&(!from_is_ref)){
+    if(to_in_pool&&(!from_in_pool)){
         if(detail::object_pool<Type>[to]>1){
             --(detail::object_pool<Type>[to]);
             to=new_object();
@@ -100,7 +100,7 @@ constexpr void BoxManager<Type>::copy_object(Type*& to,Type const* from){
         *to=*from;
         return;
     }
-    if(to_is_ref&&from_is_ref){
+    if(to_in_pool&&from_in_pool){
         delete_object(to);
         to=const_cast<Type*>(from);
         ++(detail::object_pool<Type>[const_cast<Type*>(from)]);
@@ -114,16 +114,16 @@ constexpr void BoxManager<Type>::move_object(Type*& to,Type*& from){
     if(to==from){
         return;
     }
-    bool to_is_ref=detail::object_pool<Type>.count(to)!=0;
-    bool from_is_ref=detail::object_pool<Type>.count(from)!=0;
-    if((!to_is_ref)&&(!from_is_ref)){
+    bool to_in_pool=detail::object_pool<Type>.count(to)!=0;
+    bool from_in_pool=detail::object_pool<Type>.count(from)!=0;
+    if((!to_in_pool)&&(!from_in_pool)){
         if(!to){
             to=new_object();
         }
         *to=::std::move(*from);
         return;
     }
-    if((!to_is_ref)&&from_is_ref){
+    if((!to_in_pool)&&from_in_pool){
         if(!to){
             to=from;
             from=nullptr;
@@ -133,7 +133,7 @@ constexpr void BoxManager<Type>::move_object(Type*& to,Type*& from){
         }
         return;
     }
-    if(to_is_ref&&(!from_is_ref)){
+    if(to_in_pool&&(!from_in_pool)){
         if(detail::object_pool<Type>[to]>1){
             --(detail::object_pool<Type>[to]);
             to=new_object();
@@ -141,7 +141,7 @@ constexpr void BoxManager<Type>::move_object(Type*& to,Type*& from){
         *to=::std::move(*from);
         return;
     }
-    if(to_is_ref&&from_is_ref){
+    if(to_in_pool&&from_in_pool){
         delete_object(to);
         to=from;
         from=nullptr;
