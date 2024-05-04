@@ -38,6 +38,6 @@ int main(int argc,char* argv[]){
             LambdaEnd
         }
     };
-    log(object);
+    static_assert(sizeof(Object)==8);log(object);
     return 0;
 }
