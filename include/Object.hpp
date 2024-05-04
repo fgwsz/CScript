@@ -15,23 +15,33 @@ class Object;
 using Vector=::std::vector<Object>;
 using Map=::std::unordered_map<String,Object>;
 using Function=::std::function<Object(Object)>;
+template<typename Type>
+concept ObjectType=
+        ::std::is_same_v<Type,Null>    ||
+        ::std::is_same_v<Type,Boolean> ||
+        ::std::is_same_v<Type,Number>  ||
+        ::std::is_same_v<Type,String>  ||
+        ::std::is_same_v<Type,Vector>  ||
+        ::std::is_same_v<Type,Map>     ||
+        ::std::is_same_v<Type,Function>;
 class Object final{
 public:
-    using null_t    =Null;
-    using boolean_t =Boolean;
-    using number_t  =Number;
-    using string_t  =String;
-    using vector_t  =Vector;
-    using map_t     =Map;
-    using function_t=Function;
+    constexpr Object(Null     const& value={})noexcept;
+    constexpr Object(Boolean  const& value)noexcept;
+    constexpr Object(Number   const& value)noexcept;
+    constexpr Object(String   const& value)noexcept;
+    constexpr Object(Vector   const& value)noexcept;
+    constexpr Object(Map      const& value)noexcept;
+    constexpr Object(Function const& value)noexcept;
 
-    constexpr Object(null_t     const& value={})noexcept;
-    constexpr Object(boolean_t  const& value)noexcept;
-    constexpr Object(number_t   const& value)noexcept;
-    constexpr Object(string_t   const& value)noexcept;
-    constexpr Object(vector_t   const& value)noexcept;
-    constexpr Object(map_t      const& value)noexcept;
-    constexpr Object(function_t const& value)noexcept;
+    template<ObjectType Type>
+    constexpr bool is()const noexcept;
+
+    template<ObjectType Type>
+    constexpr Type& data();
+
+    template<ObjectType Type>
+    constexpr Type const& const_data()const;
 
     constexpr bool is_null    ()const noexcept;
     constexpr bool is_boolean ()const noexcept;
@@ -41,61 +51,62 @@ public:
     constexpr bool is_map     ()const noexcept;
     constexpr bool is_function()const noexcept;
 
-    constexpr null_t    & null    ();
-    constexpr boolean_t & boolean ();
-    constexpr number_t  & number  ();
-    constexpr string_t  & string  ();
-    constexpr vector_t  & vector  ();
-    constexpr map_t     & map     ();
-    constexpr function_t& function();
+    constexpr Null    & null    ();
+    constexpr Boolean & boolean ();
+    constexpr Number  & number  ();
+    constexpr String  & string  ();
+    constexpr Vector  & vector  ();
+    constexpr Map     & map     ();
+    constexpr Function& function();
 
-    constexpr null_t     const& const_null    ()const;
-    constexpr boolean_t  const& const_boolean ()const;
-    constexpr number_t   const& const_number  ()const;
-    constexpr string_t   const& const_string  ()const;
-    constexpr vector_t   const& const_vector  ()const;
-    constexpr map_t      const& const_map     ()const;
-    constexpr function_t const& const_function()const;
+    constexpr Null     const& const_null    ()const;
+    constexpr Boolean  const& const_boolean ()const;
+    constexpr Number   const& const_number  ()const;
+    constexpr String   const& const_string  ()const;
+    constexpr Vector   const& const_vector  ()const;
+    constexpr Map      const& const_map     ()const;
+    constexpr Function const& const_function()const;
+
 
     //literal
     constexpr Object(short value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(int value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(long value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(long long value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(unsigned short value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(unsigned int value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(unsigned long value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(unsigned long long value)noexcept
-        :Object(static_cast<number_t>(value)){}
+        :Object(static_cast<Number>(value)){}
     constexpr Object(char const* value)noexcept
-        :Object(string_t{value}){};
+        :Object(String{value}){};
     template<unsigned long long n>
     constexpr Object(char const(&value)[n])noexcept
-        :Object(string_t{value}){};
+        :Object(String{value}){};
     constexpr Object(char value)noexcept
-        :Object(string_t{value}){};
+        :Object(String{value}){};
     constexpr Object(::std::initializer_list<Object> const& value)noexcept
-        :Object(vector_t{value}){};
-    inline Object(::std::initializer_list<typename map_t::value_type> const& value)noexcept
-        :Object(map_t{value}){};
+        :Object(Vector{value}){};
+    inline Object(::std::initializer_list<typename Map::value_type> const& value)noexcept
+        :Object(Map{value}){};
     template<typename FunctionType>
         requires ::std::is_function_v<FunctionType>
     constexpr Object(FunctionType* value)noexcept
-        :Object(function_t{value}){};
+        :Object(Function{value}){};
     template<typename FunctorType>
         requires requires{ {::std::remove_cvref_t<FunctorType>::operator()};}
     constexpr Object(FunctorType const& value)noexcept
-        :Object(function_t{value}){};
+        :Object(Function{value}){};
 private:
     using value_type=::std::variant<
-        null_t,boolean_t,number_t,string_t,vector_t,map_t,function_t
+        Null,Boolean,Number,String,Vector,Map,Function
     >;
     Box<value_type> data_;
 };

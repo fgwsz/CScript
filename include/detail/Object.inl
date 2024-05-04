@@ -1,78 +1,90 @@
 #include"../Object.hpp"
-constexpr Object::Object(null_t const& value)noexcept
+constexpr Object::Object(Null const& value)noexcept
     :data_(typename Object::value_type{value}){};
-constexpr Object::Object(boolean_t const& value)noexcept
+constexpr Object::Object(Boolean const& value)noexcept
     :data_(typename Object::value_type{value}){}
-constexpr Object::Object(number_t const& value)noexcept
+constexpr Object::Object(Number const& value)noexcept
 	:data_(typename Object::value_type{value}){}
-constexpr Object::Object(string_t const& value)noexcept
+constexpr Object::Object(String const& value)noexcept
 	:data_(typename Object::value_type{value}){}
-constexpr Object::Object(vector_t const& value)noexcept
+constexpr Object::Object(Vector const& value)noexcept
 	:data_(typename Object::value_type{value}){}
-constexpr Object::Object(map_t const& value)noexcept
+constexpr Object::Object(Map const& value)noexcept
 	:data_(typename Object::value_type{value}){}
-constexpr Object::Object(function_t const& value)noexcept
+constexpr Object::Object(Function const& value)noexcept
 	:data_(typename Object::value_type{value}){}
+template<ObjectType Type>
+constexpr bool Object::is()const noexcept{
+    return ::std::holds_alternative<Type>(this->data_.const_data());
+}
+template<ObjectType Type>
+constexpr Type& Object::data(){
+    return ::std::get<Type>(this->data_.data());
+}
+template<ObjectType Type>
+constexpr Type const& Object::const_data()const{
+    return ::std::get<Type>(this->data_.const_data());
+}
 constexpr bool Object::is_null()const noexcept{
-    return ::std::holds_alternative<typename Object::null_t>(this->data_.const_data());
+    return this->is<Null>();
 }
 constexpr bool Object::is_boolean()const noexcept{
-    return ::std::holds_alternative<typename Object::boolean_t>(this->data_.const_data());
+    return this->is<Boolean>();
 }
 constexpr bool Object::is_number()const noexcept{
-    return ::std::holds_alternative<typename Object::number_t>(this->data_.const_data());
+    return this->is<Number>();
 }
 constexpr bool Object::is_string()const noexcept{
-    return ::std::holds_alternative<typename Object::string_t>(this->data_.const_data());
+    return this->is<String>();
 }
 constexpr bool Object::is_vector()const noexcept{
-    return ::std::holds_alternative<typename Object::vector_t>(this->data_.const_data());
+    return this->is<Vector>();
 }
 constexpr bool Object::is_map()const noexcept{
-    return ::std::holds_alternative<typename Object::map_t>(this->data_.const_data());
+    return this->is<Map>();
 }
 constexpr bool Object::is_function()const noexcept{
-    return ::std::holds_alternative<typename Object::function_t>(this->data_.const_data());
+    return this->is<Function>();
 }
-constexpr typename Object::null_t& Object::null(){
-    return ::std::get<typename Object::null_t>(this->data_.data());
+constexpr Null& Object::null(){
+    return this->data<Null>();
 }
-constexpr typename Object::boolean_t& Object::boolean(){
-    return ::std::get<typename Object::boolean_t>(this->data_.data());
+constexpr Boolean& Object::boolean(){
+    return this->data<Boolean>();
 }
-constexpr typename Object::number_t& Object::number(){
-    return ::std::get<typename Object::number_t>(this->data_.data());
+constexpr Number& Object::number(){
+    return this->data<Number>();
 }
-constexpr typename Object::string_t& Object::string(){
-    return ::std::get<typename Object::string_t>(this->data_.data());
+constexpr String& Object::string(){
+    return this->data<String>();
 }
-constexpr typename Object::vector_t& Object::vector(){
-    return ::std::get<typename Object::vector_t>(this->data_.data());
+constexpr Vector& Object::vector(){
+    return this->data<Vector>();
 }
-constexpr typename Object::map_t& Object::map(){
-    return ::std::get<typename Object::map_t>(this->data_.data());
+constexpr Map& Object::map(){
+    return this->data<Map>();
 }
-constexpr typename Object::function_t& Object::function(){
-    return ::std::get<typename Object::function_t>(this->data_.data());
+constexpr Function& Object::function(){
+    return this->data<Function>();
 }
-constexpr typename Object::null_t const& Object:: Object::const_null()const{
-    return ::std::get<typename Object::null_t>(this->data_.const_data());
+constexpr Null const& Object:: Object::const_null()const{
+    return this->const_data<Null>();
 }
-constexpr typename Object::boolean_t const& Object:: Object::const_boolean()const{
-    return ::std::get<typename Object::boolean_t>(this->data_.const_data());
+constexpr Boolean const& Object:: Object::const_boolean()const{
+    return this->const_data<Boolean>();
 }
-constexpr typename Object::number_t const& Object:: Object::const_number()const{
-    return ::std::get<typename Object::number_t>(this->data_.const_data());
+constexpr Number const& Object:: Object::const_number()const{
+    return this->const_data<Number>();
 }
-constexpr typename Object::string_t const& Object:: Object::const_string()const{
-    return ::std::get<typename Object::string_t>(this->data_.const_data());
+constexpr String const& Object:: Object::const_string()const{
+    return this->const_data<String>();
 }
-constexpr typename Object::vector_t const& Object:: Object::const_vector()const{
-    return ::std::get<typename Object::vector_t>(this->data_.const_data());
+constexpr Vector const& Object:: Object::const_vector()const{
+    return this->const_data<Vector>();
 }
-constexpr typename Object::map_t const& Object:: Object::const_map()const{
-    return ::std::get<typename Object::map_t>(this->data_.const_data());
+constexpr Map const& Object:: Object::const_map()const{
+    return this->const_data<Map>();
 }
-constexpr typename Object::function_t const& Object:: Object::const_function()const{
-    return ::std::get<typename Object::function_t>(this->data_.const_data());
+constexpr Function const& Object:: Object::const_function()const{
+    return this->const_data<Function>();
 }
