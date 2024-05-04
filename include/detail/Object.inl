@@ -1,3 +1,4 @@
+#pragma once
 #include"../Object.hpp"
 constexpr Object::Object(Null const& value)noexcept
     :data_(typename Object::value_type{value}){};
