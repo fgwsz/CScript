@@ -30,4 +30,4 @@ int main(int argc,char* argv[]){
     return 0;
 }
 ```
-![show](./show.png "show")
+<img decoding="async" src="img/show.png" width="50%")
