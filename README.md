@@ -1,2 +1,2 @@
 # CScript
-![show](show.png "show")
+![show](./show.png "show")
