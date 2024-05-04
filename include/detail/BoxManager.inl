@@ -117,7 +117,9 @@ constexpr void BoxManager<Type>::copy_object(Type*& object){
     }
     if(detail::object_pool<Type>[object]>1){
         --(detail::object_pool<Type>[object]);
+        Type* old_object=object;
         object=new_object();
+        *object=*old_object;
     }
 }
 template<typename Type>
