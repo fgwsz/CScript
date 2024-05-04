@@ -24,6 +24,7 @@ concept ObjectType=
         ::std::is_same_v<Type,Vector>  ||
         ::std::is_same_v<Type,Map>     ||
         ::std::is_same_v<Type,Function>;
+
 class Object final{
 public:
     constexpr Object(Null     const& value={})noexcept;
@@ -36,10 +37,8 @@ public:
 
     template<ObjectType Type>
     constexpr bool is()const noexcept;
-
     template<ObjectType Type>
     constexpr Type& data();
-
     template<ObjectType Type>
     constexpr Type const& const_data()const;
 
@@ -66,7 +65,6 @@ public:
     constexpr Vector   const& const_vector  ()const;
     constexpr Map      const& const_map     ()const;
     constexpr Function const& const_function()const;
-
 
     //literal
     constexpr Object(short value)noexcept
