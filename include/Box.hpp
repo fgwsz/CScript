@@ -11,7 +11,8 @@ struct Box final{
     constexpr Box<Type>& operator=(Box<Type> const& rhs);
     constexpr Box<Type>& operator=(Box<Type>&& rhs);
     constexpr Box<Type>& operator=(Type const& value);
-    constexpr Type const& data()const;
+    constexpr Type& data();
+    constexpr Type const& const_data()const;
 private:
     Type* data_;
 };

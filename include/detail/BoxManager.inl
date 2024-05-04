@@ -107,6 +107,20 @@ constexpr void BoxManager<Type>::copy_object(Type*& to,Type const* from){
     }
 }
 template<typename Type>
+constexpr void BoxManager<Type>::copy_object(Type*& object){
+    if(!object){
+        object=new_object();
+        return;
+    }
+    if(detail::object_pool<Type>.count(object)==0){
+        return;
+    }
+    if(detail::object_pool<Type>[object]>1){
+        --(detail::object_pool<Type>[object]);
+        object=new_object();
+    }
+}
+template<typename Type>
 constexpr void BoxManager<Type>::move_object(Type*& to,Type*& from){
     if(!from){
         return;

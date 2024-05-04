@@ -3,7 +3,7 @@
 #include<utility>//::std::move
 namespace detail{
 template<typename Type>
-static constexpr bool is_small_object_v=sizeof(Type*)>sizeof(Type);
+static constexpr bool is_small_object_v=sizeof(Type)<=sizeof(Type*);
 template<typename Type>
 static Type* get_small_object(Type*& data){
     return static_cast<Type*>(static_cast<void*>(&data));//Type**
@@ -30,7 +30,7 @@ template<typename Type>
 constexpr Box<Type>::Box(Box<Type> const& rhs)
     :data_(nullptr){
     if constexpr(detail::is_small_object_v<Type>){
-        new(detail::get_small_object(this->data_))Type{rhs.data()};
+        new(detail::get_small_object(this->data_))Type{rhs.const_data()};
     }else{
         BoxManager<Type>::copy_object(this->data_,rhs.data_);
     }
@@ -39,7 +39,7 @@ template<typename Type>
 constexpr Box<Type>::Box(Box<Type>&& rhs)
     :data_(nullptr){
     if constexpr(detail::is_small_object_v<Type>){
-        new(detail::get_small_object(this->data_))Type{rhs.data()};
+        new(detail::get_small_object(this->data_))Type{rhs.const_data()};
     }else{
         BoxManager<Type>::move_object(this->data_,rhs.data_);
     }
@@ -58,7 +58,7 @@ constexpr Box<Type>& Box<Type>::operator=(Box<Type> const& rhs){
     if(this==&rhs){
         return *this;
     }
-    return this->operator=(rhs.data());
+    return this->operator=(rhs.const_data());
 }
 template<typename Type>
 constexpr Box<Type>& Box<Type>::operator=(Box<Type>&& rhs){
@@ -86,7 +86,18 @@ constexpr Box<Type>& Box<Type>::operator=(Type const& value){
     return *this;
 }
 template<typename Type>
-constexpr Type const& Box<Type>::data()const{
+constexpr Type& Box<Type>::data(){
+    if constexpr(detail::is_small_object_v<Type>){
+        return *detail::get_small_object(
+            const_cast<Type*&>(this->data_)
+        );
+    }else{
+        BoxManager<Type>::copy_object(this->data_);
+        return *(this->data_);
+    }
+}
+template<typename Type>
+constexpr Type const& Box<Type>::const_data()const{
     if constexpr(detail::is_small_object_v<Type>){
         return *detail::get_small_object(
             const_cast<Type*&>(this->data_)

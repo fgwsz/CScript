@@ -6,6 +6,7 @@ struct BoxManager{
     static constexpr Type* new_object();
     static constexpr void delete_object(Type*& object);
     static constexpr void copy_object(Type*& to,Type const* from);
+    static constexpr void copy_object(Type*& object);
     static constexpr void move_object(Type*& to,Type*& from);
     static constexpr void clear();
 };
