@@ -1,29 +1,25 @@
+#pragma once
 #include"variant_to_string.hpp"
 #include<limits>//::std::numeric_limits
 #include<string>//::std::string ::std::to_string
-namespace detail{
-::std::string number_to_string(double number)noexcept;
-::std::string array_to_string(Array const& array,int tab_count=0)noexcept;
-::std::string object_to_string(Object const& object,int tab_count=0)noexcept;
-}//namespace detail
+#include"Variant.hpp"
 ::std::string variant_to_string(Variant variant,int tab_count)noexcept{
     if(variant.is_null()){
         return "null";
     }else if(variant.is_boolean()){
         return variant.const_boolean()?"true":"false";
     }else if(variant.is_number()){
-        return detail::number_to_string(variant.const_number());
+        return number_to_string(variant.const_number());
     }else if(variant.is_string()){
         return "\""+variant.const_string()+"\"";
     }else if(variant.is_array()){
-        return detail::array_to_string(variant.const_array(),tab_count);
+        return array_to_string(variant.const_array(),tab_count);
     }else if(variant.is_object()){
-        return detail::object_to_string(variant.const_object(),tab_count);
+        return object_to_string(variant.const_object(),tab_count);
     }else /*if(variant.is_function())*/{
         return "function";
     }
 }
-namespace detail{
 ::std::string number_to_string(double number)noexcept{
     if(
         number>::std::numeric_limits<unsigned long long>::max() ||
@@ -88,4 +84,3 @@ namespace detail{
     }
     return ret+=::std::string(tab_count,'\t')+"}";
 }
-}//namespace deatail

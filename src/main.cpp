@@ -28,5 +28,7 @@ int main(int argc,char* argv[]){
     };
     variant.object()["set_name"].function().Invoke("Jerry");
     Logger::info(variant_to_string(variant));
+    BoxManager<typename Variant::value_type>::print_object_pool();
+    BoxManager<typename Variant::value_type>::print_memory_pool();
     return 0;
 }

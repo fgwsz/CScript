@@ -4,7 +4,7 @@
 #include<deque>//::std::deque
 #include<map>//::std::map
 #include<string>//::std::string
-#include"Logger.hpp"//Logger
+#include<iostream>//::std::cout
 #include"type_name.hpp"//type_name
 namespace detail{
 template<ValueType Type>
@@ -178,35 +178,37 @@ constexpr void BoxManager<Type>::clear(){
 }
 template<ValueType Type>
 constexpr void BoxManager<Type>::print_object_pool(){
-    ::std::string message="";
+    ::std::cout
+        <<"BoxManager<"<<type_name<Type>()<<">::object_pool\n";
     for(
         unsigned long long index=0;
         auto const& pair:detail::object_pool<Type>
     ){
-        message+=
-            "["+::std::to_string(index)+"]"
-            +"{"+::std::to_string(
+        ::std::cout
+            <<"\nobject_begin___________________________\n"
+            <<"["<<::std::to_string(index)<<"]"
+            <<"{pointer:"<<::std::to_string(
                 reinterpret_cast<::std::uintptr_t>(pair.first)
-            )+":"+::std::to_string(pair.second)+"}"
-            +"\n";
+            )<<",ref count:"<<::std::to_string(pair.second)<<"}\n"
+            <<*(pair.first)
+            <<"\nobject_end_____________________________\n"
+            <<"\n";
         ++index;
     }
-    Logger::info(message);
 }
 template<ValueType Type>
 constexpr void BoxManager<Type>::print_memory_pool(){
-    ::std::string message="";
+    ::std::cout
+        <<"BoxManager<"<<type_name<Type>()<<">::memory_pool\n";
     for(
         unsigned long long index=0;
         auto const& element:detail::memory_pool<Type>
     ){
-        message+=
-            "["+::std::to_string(index)+"]"
-            +"{"+::std::to_string(
+        ::std::cout
+            <<"["<<::std::to_string(index)<<"]"
+            <<"{pointer:"<<::std::to_string(
                 reinterpret_cast<::std::uintptr_t>(element)
-            )
-            +"}\n";
+            )<<"}\n";
         ++index;
     }
-    Logger::info(message);
 }

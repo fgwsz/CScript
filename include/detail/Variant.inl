@@ -1,5 +1,6 @@
 #pragma once
 #include"Variant.hpp"
+#include"variant_to_string.hpp"
 constexpr Variant::Variant(Null const& value)noexcept
     :data_(typename Variant::value_type{value}){};
 constexpr Variant::Variant(Boolean const& value)noexcept
@@ -100,4 +101,25 @@ constexpr Object const& Variant::const_object()const{
 }
 constexpr Function const& Variant::const_function()const{
     return this->const_data<Function>();
+}
+template<typename OutputStream>
+constexpr OutputStream& operator<<(
+    OutputStream& os,
+    typename Variant::value_type const& value
+)noexcept{
+    if(::std::holds_alternative<Null>(value)){
+        return os<<"null";
+    }else if(::std::holds_alternative<Boolean>(value)){
+        return os<<(::std::get<Boolean>(value)?"true":"false");
+    }else if(::std::holds_alternative<Number>(value)){
+        return os<<number_to_string(::std::get<Number>(value));
+    }else if(::std::holds_alternative<String>(value)){
+        return os<<"\""+::std::get<String>(value)+"\"";
+    }else if(::std::holds_alternative<Array>(value)){
+        return os<<array_to_string(::std::get<Array>(value));
+    }else if(::std::holds_alternative<Object>(value)){
+        return os<<object_to_string(::std::get<Object>(value));
+    }else /*Function*/{
+        return os<<"function";
+    }
 }
