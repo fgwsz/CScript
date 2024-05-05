@@ -1,11 +1,13 @@
 #pragma once
-#include"../BoxManager.hpp"
+#include"BoxManager.hpp"
 #include<new>//::operator new,::operator delete
-#include<stack>//std::stack
-#include<unordered_map>//std::unordered_map
-#include<iostream>//std:cout
+#include<deque>//::std::deque
+#include<map>//::std::map
+#include<string>//::std::string
+#include"Logger.hpp"//Logger
+#include"type_name.hpp"//type_name
 namespace detail{
-template<typename Type>
+template<ValueType Type>
 struct BoxManagerClear{
     BoxManagerClear()
     {}
@@ -14,23 +16,22 @@ struct BoxManagerClear{
     }
     ~BoxManagerClear(){
         BoxManager<Type>::clear();
-        ::std::cout<<"BoxManager<"<<typeid(Type).name()<<"> Clear!\n";
     }
 };
-template<typename Type>
+template<ValueType Type>
 static BoxManagerClear<Type> box_manger_clear={};
-template<typename Type>
-static ::std::unordered_map<Type*,unsigned> object_pool={};
-template<typename Type>
-static ::std::stack<Type*> memory_pool={};
+template<ValueType Type>
+static ::std::map<Type*,unsigned> object_pool={};
+template<ValueType Type>
+static ::std::deque<Type*> memory_pool={};
 }//namespace detail
-template<typename Type>
+template<ValueType Type>
 constexpr Type* BoxManager<Type>::new_object(){
     bool clear_init=detail::box_manger_clear<Type>.init();
     Type* ret=nullptr;
     if(!detail::memory_pool<Type>.empty()){
-        ret=detail::memory_pool<Type>.top();
-        detail::memory_pool<Type>.pop();
+        ret=detail::memory_pool<Type>.front();
+        detail::memory_pool<Type>.pop_front();
     }else{
         for(;;){
             ret=static_cast<Type*>(
@@ -48,7 +49,7 @@ constexpr Type* BoxManager<Type>::new_object(){
     detail::object_pool<Type>[ret]=1;
     return ret;
 }
-template<typename Type>
+template<ValueType Type>
 constexpr void BoxManager<Type>::delete_object(Type*& object){
     if(!object){
         return;
@@ -60,12 +61,12 @@ constexpr void BoxManager<Type>::delete_object(Type*& object){
         --(detail::object_pool<Type>[object]);
     }else{
         object->~Type();
-        detail::memory_pool<Type>.push(object);
+        detail::memory_pool<Type>.emplace_back(object);
         detail::object_pool<Type>.erase(object);
     }
     object=nullptr;
 }
-template<typename Type>
+template<ValueType Type>
 constexpr void BoxManager<Type>::copy_object(Type*& to,Type const* from){
     if(!from){
         return;
@@ -106,7 +107,7 @@ constexpr void BoxManager<Type>::copy_object(Type*& to,Type const* from){
         ++(detail::object_pool<Type>[const_cast<Type*>(from)]);
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr void BoxManager<Type>::copy_object(Type*& object){
     if(!object){
         object=new_object();
@@ -122,7 +123,7 @@ constexpr void BoxManager<Type>::copy_object(Type*& object){
         *object=*old_object;
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr void BoxManager<Type>::move_object(Type*& to,Type*& from){
     if(!from){
         return;
@@ -163,17 +164,49 @@ constexpr void BoxManager<Type>::move_object(Type*& to,Type*& from){
         from=nullptr;
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr void BoxManager<Type>::clear(){
-    for(auto& pair:detail::object_pool<Type>){
+    for(auto const& pair:detail::object_pool<Type>){
         (pair.first)->~Type();
-        detail::memory_pool<Type>.push(pair.first); 
+        detail::memory_pool<Type>.emplace_back(pair.first); 
     }
     detail::object_pool<Type>.clear();
-    Type* object=nullptr;
-    while(!detail::memory_pool<Type>.empty()){
-        object=detail::memory_pool<Type>.top();
-        ::operator delete(object,::std::nothrow);
-        detail::memory_pool<Type>.pop();
+    for(auto const& element:detail::memory_pool<Type>){
+        ::operator delete(element,::std::nothrow);
     }
+    detail::memory_pool<Type>.clear();
+}
+template<ValueType Type>
+constexpr void BoxManager<Type>::print_object_pool(){
+    ::std::string message="";
+    for(
+        unsigned long long index=0;
+        auto const& pair:detail::object_pool<Type>
+    ){
+        message+=
+            "["+::std::to_string(index)+"]"
+            +"{"+::std::to_string(
+                reinterpret_cast<::std::uintptr_t>(pair.first)
+            )+":"+::std::to_string(pair.second)+"}"
+            +"\n";
+        ++index;
+    }
+    Logger::info(message);
+}
+template<ValueType Type>
+constexpr void BoxManager<Type>::print_memory_pool(){
+    ::std::string message="";
+    for(
+        unsigned long long index=0;
+        auto const& element:detail::memory_pool<Type>
+    ){
+        message+=
+            "["+::std::to_string(index)+"]"
+            +"{"+::std::to_string(
+                reinterpret_cast<::std::uintptr_t>(element)
+            )
+            +"}\n";
+        ++index;
+    }
+    Logger::info(message);
 }

@@ -1,43 +1,32 @@
-#include"Object.hpp"
-#include"object_to_string.hpp"
-#define LambdaBegin \
-Function([](Object argument_list)->Object{
-//
-#define LambdaEnd \
-})
-//
-#define Argument(index__,type__,name__) \
-auto& name__=argument_list.vector()[index__].data<type__>(); \
-//
-void log(Object object){
-    ::std::cout<<object_to_string(object)<<"\n";
-}
+#include"Variant.hpp"
+#include"Lambda.hpp"
+#include"Logger.hpp"
+#include"variant_to_string.hpp"
 int main(int argc,char* argv[]){
-    Object object=Map{
+    static_assert(sizeof(Variant)<=sizeof(void*));
+    Variant variant=Object{
         {"null",Null{}},
         {"boolean",true},
         {"integer",-1},
         {"float",3.14},
-        {"char",'A'},
+        {"character",'A'},
         {"string","hello"},
-        {"vector",
-            Vector{
+        {"array",
+            Array{
                 Null{},false,1,-3.14,'B',"world",
-                Vector{1,2},Map{{"name","Tom"},{"age",20}},
-                LambdaBegin
-                    return Null{};
-                LambdaEnd
+                Array{1,2},Object{{"name","Tom"},{"age",20}},
+                Lambda_Begin(Null)
+                Lambda_End
             },
         },
         {"set_name",
-            LambdaBegin 
-                Argument(0,Map,self)
-                Argument(1,String,name)
-                    self["name"]=name;
-                    return self;
-            LambdaEnd
+            Lambda_Begin(Null,&variant)
+            Lambda_Arg(0,String const,name)
+                variant.object()["name"]=name;
+            Lambda_End
         }
     };
-    static_assert(sizeof(Object)==8);log(object);
+    variant.object()["set_name"].function().Invoke("Jerry");
+    Logger::info(variant_to_string(variant));
     return 0;
 }

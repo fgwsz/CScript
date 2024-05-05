@@ -1,15 +1,16 @@
 #pragma once
-#include"../Box.hpp"
+#include"Box.hpp"
 #include<utility>//::std::move
+#include"BoxManager.hpp"//BoxManager
 namespace detail{
-template<typename Type>
+template<ValueType Type>
 static constexpr bool is_small_object_v=sizeof(Type)<=sizeof(Type*);
-template<typename Type>
+template<ValueType Type>
 static Type* get_small_object(Type*& data){
     return static_cast<Type*>(static_cast<void*>(&data));//Type**
 }
 }//namespace detail
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>::Box()
     :data_(nullptr){
     if constexpr(detail::is_small_object_v<Type>){
@@ -18,7 +19,7 @@ constexpr Box<Type>::Box()
         this->data_=BoxManager<Type>::new_object();
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>::~Box(){
     if constexpr(detail::is_small_object_v<Type>){
         detail::get_small_object(this->data_)->~Type();
@@ -26,7 +27,7 @@ constexpr Box<Type>::~Box(){
         BoxManager<Type>::delete_object(this->data_);
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>::Box(Box<Type> const& rhs)
     :data_(nullptr){
     if constexpr(detail::is_small_object_v<Type>){
@@ -35,7 +36,7 @@ constexpr Box<Type>::Box(Box<Type> const& rhs)
         BoxManager<Type>::copy_object(this->data_,rhs.data_);
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>::Box(Box<Type>&& rhs)
     :data_(nullptr){
     if constexpr(detail::is_small_object_v<Type>){
@@ -44,7 +45,7 @@ constexpr Box<Type>::Box(Box<Type>&& rhs)
         BoxManager<Type>::move_object(this->data_,rhs.data_);
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>::Box(Type const& value)
     :data_(nullptr){
     if constexpr(detail::is_small_object_v<Type>){
@@ -53,14 +54,14 @@ constexpr Box<Type>::Box(Type const& value)
         BoxManager<Type>::copy_object(this->data_,&value);
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>& Box<Type>::operator=(Box<Type> const& rhs){
     if(this==&rhs){
         return *this;
     }
     return this->operator=(rhs.const_data());
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>& Box<Type>::operator=(Box<Type>&& rhs){
     if(this==&rhs){
         return *this;
@@ -73,7 +74,7 @@ constexpr Box<Type>& Box<Type>::operator=(Box<Type>&& rhs){
     }
     return *this;
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Box<Type>& Box<Type>::operator=(Type const& value){
     if constexpr(detail::is_small_object_v<Type>){
         if(detail::get_small_object(this->data_)==&value){
@@ -85,7 +86,7 @@ constexpr Box<Type>& Box<Type>::operator=(Type const& value){
     }
     return *this;
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Type& Box<Type>::data(){
     if constexpr(detail::is_small_object_v<Type>){
         return *detail::get_small_object(
@@ -96,7 +97,7 @@ constexpr Type& Box<Type>::data(){
         return *(this->data_);
     }
 }
-template<typename Type>
+template<ValueType Type>
 constexpr Type const& Box<Type>::const_data()const{
     if constexpr(detail::is_small_object_v<Type>){
         return *detail::get_small_object(

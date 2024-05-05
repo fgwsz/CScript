@@ -1,8 +1,7 @@
 #pragma once
-#include"BoxManager.hpp"
-template<typename Type>
+#include"ValueType.hpp"
+template<ValueType Type>
 struct Box final{
-    static_assert(is_value_type_v<Type>);
     constexpr Box();
     constexpr ~Box();
     constexpr Box(Box<Type> const& rhs);
