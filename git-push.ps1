@@ -18,7 +18,6 @@ if(!($commit_info -eq "q")){
     git add git-keep.ps1
     git add build*.ps1
     git add clean.ps1
-    git add *.png
     git commit -m $commit_info
     git push
 }
