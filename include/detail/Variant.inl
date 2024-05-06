@@ -1,6 +1,8 @@
 #pragma once
+#include<stdexcept>
 #include"Variant.hpp"
 #include"variant_to_string.hpp"
+#include"Logger.hpp"
 constexpr Variant::Variant(Null const& value)noexcept
     :data_(typename Variant::value_type{value}){};
 constexpr Variant::Variant(Boolean const& value)noexcept
@@ -17,26 +19,115 @@ constexpr Variant::Variant(Function const& value)noexcept
 	:data_(typename Variant::value_type{value}){}
 template<VariantType Type>
 constexpr bool Variant::is()const noexcept{
-    if constexpr(::std::is_same_v<Type,Variant>){
+    if constexpr(
+        IsSame<Type,Variant>::value
+        ||IsSame<Type,Variant const>::value
+    ){
         return true;
     }else{
-        return ::std::holds_alternative<Type>(this->data_.const_data());
+        return ::std::holds_alternative<::std::remove_const_t<Type>>(this->data_.const_data());
     }
 }
+namespace detail{
+template<VariantType Type>struct VariantTypeName;
+
+template<>
+struct VariantTypeName<Null>
+{static constexpr ::std::string_view value="Null";};
+template<>
+struct VariantTypeName<Boolean>
+{static constexpr ::std::string_view value="Boolean";};
+template<>
+struct VariantTypeName<Number>
+{static constexpr ::std::string_view value="Number";};
+template<>
+struct VariantTypeName<String>
+{static constexpr ::std::string_view value="String";};
+template<>
+struct VariantTypeName<Array>
+{static constexpr ::std::string_view value="Array";};
+template<>
+struct VariantTypeName<Object>
+{static constexpr ::std::string_view value="Object";};
+template<>
+struct VariantTypeName<Function>
+{static constexpr ::std::string_view value="Function";};
+
+template<>
+struct VariantTypeName<Null const>
+{static constexpr ::std::string_view value="Null";};
+template<>
+struct VariantTypeName<Boolean const>
+{static constexpr ::std::string_view value="Boolean";};
+template<>
+struct VariantTypeName<Number const>
+{static constexpr ::std::string_view value="Number";};
+template<>
+struct VariantTypeName<String const>
+{static constexpr ::std::string_view value="String";};
+template<>
+struct VariantTypeName<Array const>
+{static constexpr ::std::string_view value="Array";};
+template<>
+struct VariantTypeName<Object const>
+{static constexpr ::std::string_view value="Object";};
+template<>
+struct VariantTypeName<Function const>
+{static constexpr ::std::string_view value="Function";};
+}//namespace detail
 template<VariantType Type>
 constexpr Type& Variant::data(){
-    if constexpr(::std::is_same_v<Type,Variant>){
+    if constexpr(
+        IsSame<Type,Variant>::value
+        ||IsSame<Type,Variant const>::value
+    ){
         return *this;
-    }else{
+    }else if(this->is<Type>()){
         return ::std::get<::std::remove_const_t<Type>>(this->data_.data());
+    }else{
+        auto message=
+            ::std::string("Variant(")
+            .append(this->type_name())
+            .append(") Cast To ")
+            .append(detail::VariantTypeName<Type>::value);
+        Logger::error(message);
+        throw ::std::runtime_error(message);
     }
 }
 template<VariantType Type>
 constexpr Type const& Variant::const_data()const{
-    if constexpr(::std::is_same_v<Type,Variant>){
+    if constexpr(
+        IsSame<Type,Variant>::value
+        ||IsSame<Type,Variant const>::value
+    ){
         return *this;
-    }else{
+    }else if(this->is<Type>()){
         return ::std::get<::std::remove_const_t<Type>>(this->data_.const_data());
+    }else{
+        auto message=
+            ::std::string("Variant(")
+            .append(this->type_name())
+            .append(") Cast To ")
+            .append(detail::VariantTypeName<Type>::value);
+        Logger::error(message);
+        throw ::std::runtime_error(message);
+    }
+}
+constexpr ::std::string_view Variant::type_name()const noexcept{
+    if(this->is<Null>()){
+        return "Null";
+    }else if(this->is<Boolean>()){
+        return "Boolean";
+    }else if(this->is<Number>()){
+        return "Number";
+    }else if(this->is<String>()){
+        return "String";
+    }else if(this->is<Array>()){
+        return "Array";
+    }else if(this->is<Object>()){
+        return "Object";
+    }else /*if(this->is<Function>())*/{
+        return "Function";
     }
 }
 constexpr bool Variant::is_null()const noexcept{

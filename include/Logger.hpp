@@ -13,3 +13,4 @@ struct Logger{
         =::std::source_location::current()
     )noexcept;
 };
+#include"detail/Logger.inl"

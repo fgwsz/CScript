@@ -1,6 +1,7 @@
 #pragma once
 #include<initializer_list>
 #include<type_traits>
+#include<string_view>
 #include<variant>
 #include"VariantType.hpp"
 #include"FunctorType.hpp"
@@ -21,6 +22,8 @@ public:
     constexpr Type& data();
     template<VariantType Type>
     constexpr Type const& const_data()const;
+
+    constexpr ::std::string_view type_name()const noexcept;
 
     constexpr bool is_null    ()const noexcept;
     constexpr bool is_boolean ()const noexcept;

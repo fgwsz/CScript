@@ -1,3 +1,4 @@
+#pragma once
 #include"Logger.hpp"
 #include<chrono>//::std::chrono
 #include<iostream>//::std::cout
